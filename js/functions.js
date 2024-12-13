@@ -24,3 +24,25 @@ const extractNumber = (text) => {
 
 extractNumber(-1.8);
 
+//Функции возвращаются
+//Перевод времени в минуты
+const getMinutes = (time) => {
+  const stringTime = time.split(':');
+  return +stringTime[0] * 60 + +stringTime[1];
+};
+
+// результирующая функция
+const isRightTime = (dayStart, dayEnd, meetingStart, meetingDuration) =>
+  getMinutes(dayStart) <= getMinutes(meetingStart) && (getMinutes(meetingStart) + meetingDuration) <= getMinutes(dayEnd);
+
+isRightTime('08:00', '17:30', '14:00', 90);
+
+//Примеры применения
+
+// console.log(isRightTime('08:00', '17:30', '14:00', 90)); // true
+// console.log(isRightTime('8:0', '10:0', '8:0', 120)); // true
+// console.log(isRightTime('08:00', '14:30', '14:00', 90)); // false
+// console.log(isRightTime('14:00', '17:30', '08:0', 90)); // false
+// console.log(isRightTime('8:00', '17:30', '08:00', 900)); // false
+
+
