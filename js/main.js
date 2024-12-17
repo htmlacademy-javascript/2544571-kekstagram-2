@@ -1,5 +1,5 @@
 // Импорт модуля с миниатюрами
-import "./miniatures.js";
+import './miniatures.js';
 
 //Импорт модуля с отрисовкой полноразмерных изображений
-import "./fullscale.js";
+import './fullscale.js';
