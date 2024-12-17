@@ -80,6 +80,7 @@ bigPictureCloseButton.addEventListener('click', () => {
 // Функция для обработчика события по клику на миниатюру
 function onMiniatureClick(evt) {
   if (evt.target.matches('img[class="picture__img"]')) {
+    evt.preventDefault();
     // Проверяем дата-атрибут фотографии с ее айди в массиве данных
     const elemData = genPicturesArray.find((element) => element.id === Number(evt.target.dataset.pictureId));
     bigPictureImg.src = elemData.url;
