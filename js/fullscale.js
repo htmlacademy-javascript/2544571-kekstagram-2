@@ -1,5 +1,5 @@
-import { isEscapeKey } from './utils'; // Импортируем функцию проверки нажатия Esc
-import { genPicturesArray } from './miniatures'; // Импортируем массив, на основе которого отрисовывались фотографии
+import { isEscapeKey } from './utils.js'; // Импортируем функцию проверки нажатия Esc
+import { genPicturesArray } from './miniatures.js'; // Импортируем массив, на основе которого отрисовывались фотографии
 
 // Находим элементы на странице
 const bigPicture = document.querySelector('.big-picture');
