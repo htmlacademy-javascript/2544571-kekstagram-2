@@ -31,8 +31,20 @@ commentTemplate.innerHTML = `<img
 // Создаем фрагмент, куда будем добавлять комментарии
 const genCommentsFragment = document.createDocumentFragment();
 
-// Функция для подсчета количества комментариев
+// Функция, создающая комментарии к фотографии из данных из массива
+const genComments = (dataArray) => {
+  dataArray.forEach(({ avatar, message, name }) => {
+    const commentElement = commentTemplate.cloneNode(true);
+    commentElement.querySelector('.social__picture').src = avatar;
+    commentElement.querySelector('.social__picture').alt = name;
+    commentElement.querySelector('.social__text').textContent = message;
+    genCommentsFragment.appendChild(commentElement);
+  });
+  commentContainer.innerHTML = '';
+  commentContainer.appendChild(genCommentsFragment);
+};
 
+// Функция для подсчета количества комментариев
 const getCommentsInfo = () => {
   const commentsList = commentContainer.querySelectorAll('.social__comment');
   const commentsTotal = commentsList.length;
@@ -47,8 +59,7 @@ const getShownComments = () => {
   shownCommentsCount.textContent = comments.active;
 };
 
-// Функция для прохода по массиву и открытия комментариев
-
+// Функция для прохода по элементам и открытия комментариев
 const commentsOpen = (nodeList, start, end) => {
   for (let i = start; i < end; i++) {
     nodeList[i].classList.remove('hidden');
@@ -56,7 +67,6 @@ const commentsOpen = (nodeList, start, end) => {
 };
 
 // Функция для показа первых комментариев и кнопки подгрузки
-
 const getCommentsStack = () => {
   const comments = getCommentsInfo();
   const caseParam = true;
@@ -71,20 +81,6 @@ const getCommentsStack = () => {
       break;
   }
   getShownComments();
-};
-
-
-// Функция, создающая комментарии к фотографии из данных из массива
-const genComments = (dataArray) => {
-  dataArray.forEach(({ avatar, message, name }) => {
-    const commentElement = commentTemplate.cloneNode(true);
-    commentElement.querySelector('.social__picture').src = avatar;
-    commentElement.querySelector('.social__picture').alt = name;
-    commentElement.querySelector('.social__text').textContent = message;
-    genCommentsFragment.appendChild(commentElement);
-  });
-  commentContainer.innerHTML = '';
-  commentContainer.appendChild(genCommentsFragment);
 };
 
 // Функция для обработчика события на нажатие Esc при открытом модальном окне
@@ -111,12 +107,6 @@ function closeBigPicture() {
   document.removeEventListener('keydown', onDocumentKeyDown);
 }
 
-// Добавляем событие на кнопку закрытия
-bigPictureCloseButton.addEventListener('click', () => {
-  closeBigPicture();
-  commentsLoader.classList.remove('hidden'); // Открываем кнопку "загрузить еще" (это вариант по умолчанию)
-});
-
 // Функция для обработчика события по клику на миниатюру
 function onMiniatureClick(evt) {
   if (evt.target.matches('img[class="picture__img"]')) {
@@ -133,9 +123,14 @@ function onMiniatureClick(evt) {
   }
 }
 
+// Добавляем событие на кнопку закрытия
+bigPictureCloseButton.addEventListener('click', () => {
+  closeBigPicture();
+  commentsLoader.classList.remove('hidden'); // Открываем кнопку "загрузить еще" (это вариант по умолчанию)
+});
+
 // Добавляем событие на миниатюры (родительский элемент)
 picturesContainer.addEventListener('click', onMiniatureClick);
 
 // Добавляем событие на кнопку подгрузки комментариев
 commentsLoader.addEventListener('click', getCommentsStack);
-
