@@ -1,5 +1,5 @@
-import { isEscapeKey } from './utils'; // Импортируем функцию проверки нажатия Esc
-import { genPicturesArray } from './miniatures'; // Импортируем массив, на основе которого отрисовывались фотографии
+import { isEscapeKey } from './utils.js'; // Импортируем функцию проверки нажатия Esc
+import { genPicturesArray } from './miniatures.js'; // Импортируем массив, на основе которого отрисовывались фотографии
 
 // Находим элементы на странице
 const bigPicture = document.querySelector('.big-picture');
@@ -13,8 +13,14 @@ const bigPictureCommentsCount = bigPicture.querySelector('.social__comment-total
 const commentContainer = bigPicture.querySelector('.social__comments');
 const shownCommentsCount = bigPicture.querySelector('.social__comment-shown-count');
 const bigPictureDescription = bigPicture.querySelector('.social__caption');
-const socialCommentCount = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
+
+let active = 0; // Счетчик активных комментариев
+let commentsArray = []; // Временный массив для порционной генерации комментариев
+const COMMENTS_PACE = 5; // Константа, задающая шаг - количество показываемых комментариев
+
+// Убираем комментарии, поставленные в разметке по умолчанию
+commentContainer.innerHTML = '';
 
 // Создаем шаблон для добавления комментариев
 const commentTemplate = document.createElement('li');
@@ -29,24 +35,44 @@ commentTemplate.innerHTML = `<img
 // Создаем фрагмент, куда будем добавлять комментарии
 const genCommentsFragment = document.createDocumentFragment();
 
-// Функция для подсчета количества показанных комментариев к фотографии
-const getShownComments = () => {
-  shownCommentsCount.textContent = commentContainer.querySelectorAll('li').length - commentContainer.querySelectorAll('li[class="social__comment hidden"]').length;
-};
-
 // Функция, создающая комментарии к фотографии из данных из массива
 const genComments = (dataArray) => {
   dataArray.forEach(({ avatar, message, name }) => {
-    // const commentElement = comment.cloneNode(true);
     const commentElement = commentTemplate.cloneNode(true);
     commentElement.querySelector('.social__picture').src = avatar;
     commentElement.querySelector('.social__picture').alt = name;
     commentElement.querySelector('.social__text').textContent = message;
     genCommentsFragment.appendChild(commentElement);
   });
-  commentContainer.innerHTML = '';
   commentContainer.appendChild(genCommentsFragment);
 };
+
+// Функция для вывода количества показанных комментариев к фотографии
+const getShownComments = () => {
+  shownCommentsCount.textContent = active;
+};
+
+// Функция для порционной генерации комментариев
+
+function getCommentsPortion() {
+  const total = commentsArray.length;
+  const hidden = total - active;
+  const caseParam = true;
+  switch (caseParam) {
+    case (hidden === 0): // Скрытых комментариев 0 - скрываем кнопку (счетчик остается на нуле тоже)
+      commentsLoader.classList.add('hidden'); break;
+    case (hidden <= COMMENTS_PACE): // Скрытых комментариев меньше константы - добавляем все до конца, скрываем кнопку
+      genComments(commentsArray.slice(active, total));
+      commentsLoader.classList.add('hidden');
+      active = total; // Увеличиваем счетчик до значения "все комментарии"
+      break;
+    case (hidden > COMMENTS_PACE): // Скрытых комментариев больше константы - добавляем количество по константе
+      genComments(commentsArray.slice(active, active + COMMENTS_PACE));
+      active += COMMENTS_PACE; // Увеличиваем счетчик на константу
+      break;
+  }
+  getShownComments();
+}
 
 // Функция для обработчика события на нажатие Esc при открытом модальном окне
 const onDocumentKeyDown = (evt) => {
@@ -68,14 +94,15 @@ function openBigPicture() {
 function closeBigPicture() {
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
+  commentsLoader.classList.remove('hidden'); // Открываем кнопку-загрузчик комментариев (это состояние по умолчанию)
 
   document.removeEventListener('keydown', onDocumentKeyDown);
-}
 
-// Добавляем событие на кнопку закрытия
-bigPictureCloseButton.addEventListener('click', () => {
-  closeBigPicture();
-});
+  // Сбрасываем счетчик активных, временный массив и убираем комментарии:
+  active = 0;
+  commentsArray = [];
+  commentContainer.innerHTML = '';
+}
 
 // Функция для обработчика события по клику на миниатюру
 function onMiniatureClick(evt) {
@@ -87,16 +114,18 @@ function onMiniatureClick(evt) {
     bigPictureLikesCount.textContent = elemData.likes;
     bigPictureCommentsCount.textContent = elemData.comment.length;
     bigPictureDescription.textContent = elemData.description;
-    genComments(elemData.comment);
-    getShownComments();
+    commentsArray = elemData.comment;
+    getCommentsPortion();
     openBigPicture();
-
-    // Скрываем счетчик комментариев и кнопку "загрузить еще" (по условиям задания)
-    socialCommentCount.classList.add('hidden');
-    commentsLoader.classList.add('hidden');
   }
 }
+// Добавляем событие на кнопку "Загрузить еще"
+commentsLoader.addEventListener('click', getCommentsPortion);
+
+// Добавляем событие на кнопку закрытия
+bigPictureCloseButton.addEventListener('click', closeBigPicture);
 
 // Добавляем событие на миниатюры (родительский элемент)
 picturesContainer.addEventListener('click', onMiniatureClick);
+
 
