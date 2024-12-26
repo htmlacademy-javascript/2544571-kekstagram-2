@@ -1,7 +1,7 @@
 import { isEscapeKey } from './utils.js'; // Импортируем функцию проверки нажатия Esc
 
-//Импорт модуля, который занимается эффектами на изображении (к заданию 9.2)
-import './image-effects.js';
+//Импорт функции, сбрасывающей параметры эффектов (к заданию 9.2)
+import {resetEffectsParameters} from './image-effects.js';
 
 const bodyElement = document.querySelector('body');
 const imageUploadForm = document.querySelector('.img-upload__form');
@@ -90,6 +90,7 @@ function closeUploadOverlay() {
   bodyElement.classList.remove('modal-open');
 
   imageUploadForm.reset(); // вызываем ресет формы после закрытия модального окна
+  resetEffectsParameters(); // вызываем ресет параметров для эффектов (задание 9.2)
 
   document.removeEventListener('keydown', onDocumentKeyDown);
 }
