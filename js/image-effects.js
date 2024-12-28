@@ -8,13 +8,6 @@ const sliderContainer = imageUploadForm.querySelector('.img-upload__effect-level
 const effectsList = imageUploadForm.querySelector('.effects__list');
 const effectLevel = imageUploadForm.querySelector('.effect-level__value');
 
-const effectButtons = imageUploadForm.querySelectorAll('input.effects__radio[name=effect]');
-const sepiaButton = imageUploadForm.querySelector('#effect-sepia');
-const chromeButton = imageUploadForm.querySelector('#effect-chrome');
-const marvinButton = imageUploadForm.querySelector('#effect-marvin');
-const phobosButton = imageUploadForm.querySelector('#effect-phobos');
-const heatButton = imageUploadForm.querySelector('#effect-heat');
-
 // Параметры для масштаба ПЕРЕЧИСЛЕНИЕ?
 const ScaleMeasures = {
   MAX: 100,
@@ -22,15 +15,13 @@ const ScaleMeasures = {
   STEP: 25
 };
 
-let flevel;
-
-// Параметры слайдера для разных фильтров (эффект: мин, макс, шаг) СЛОВАРЬ?
+// Параметры слайдера для разных фильтров (эффект: мин, макс, шаг, стиль, единицы измерения) СЛОВАРЬ?
 const sliderParameters = {
-  'effect-chrome': [0, 1, 0.1, `grayscale(${flevel})`],
-  'effect-sepia': [0, 1, 0.1, `sepia(${flevel})`],
-  'effect-marvin': [0, 100, 1, `invert(${flevel}%)`],
-  'effect-phobos': [0, 3, 0.1, `blur(${flevel}px)`],
-  'effect-heat': [1, 3, 0.1, `brightness(${flevel})`],
+  'effect-chrome': [0, 1, 0.1, 'grayscale(', ')'],
+  'effect-sepia': [0, 1, 0.1, 'sepia(', ')'],
+  'effect-marvin': [0, 100, 1, 'invert(', '%)'],
+  'effect-phobos': [0, 3, 0.1, 'blur(', 'px)'],
+  'effect-heat': [1, 3, 0.1, 'brightness(', ')'],
 };
 
 // Глобальная переменная для масштаба
@@ -38,15 +29,15 @@ let scale = 100;
 
 // Функция для получения параметров в зависимости от фильтра
 const getSliderSetting = (effect) => {
-  const elem = sliderParameters[effect];
-  const parameter =
+  const sliderParameter = sliderParameters[effect];
+  const sliderSetting =
   {
     range: {
-      min: elem[0],
-      max: elem[1],
+      min: sliderParameter[0],
+      max: sliderParameter[1],
     },
-    start: elem[1],
-    step: elem[2],
+    start: sliderParameter[1],
+    step: sliderParameter[2],
     connect: 'lower',
     format: {
       to: function (value) {
@@ -57,7 +48,7 @@ const getSliderSetting = (effect) => {
       },
     },
   };
-  return parameter;
+  return sliderSetting;
 };
 
 // функция, выводящая слайдер с нужными настройками
@@ -80,24 +71,25 @@ const resetEffectsParameters = () => {
   resetSliderEffects();
 };
 
-sliderContainer.classList.add('hidden'); // Скрываем контейнер слайдера по умолчанию
+// Скрываем контейнер слайдера по умолчанию
+sliderContainer.classList.add('hidden');
 
-noUiSlider.create(sliderElement, getSliderSetting('effect-chrome')); // создаем слайдер (параметры не важны, так как он скрыт)
+// создаем слайдер (параметры не важны, так как он скрыт)
+noUiSlider.create(sliderElement, getSliderSetting('effect-chrome'));
 
-effectsList.addEventListener('change', (evt) => { // устанавливаем событие на кнопки переключения эффектов
+// устанавливаем событие на кнопки переключения эффектов
+effectsList.addEventListener('change', (evt) => {
   const id = evt.target.id;
   return id === 'effect-none' ? resetSliderEffects() : setSlider(id);
 });
 
-sliderElement.noUiSlider.on('update', () => { // устанавливаем событие на движение слайдера, в зависимости от эффекта
+// устанавливаем событие на движение слайдера, в зависимости от эффекта
+sliderElement.noUiSlider.on('update', () => {
   const level = sliderElement.noUiSlider.get();
   effectLevel.value = level;
-  switch (true) {
-    case (chromeButton.checked): previewImage.style.filter = `grayscale(${level})`; break;
-    case (sepiaButton.checked): previewImage.style.filter = `sepia(${level})`; break;
-    case (marvinButton.checked): previewImage.style.filter = `invert(${level}%)`; break;
-    case (phobosButton.checked): previewImage.style.filter = `blur(${level}px)`; break;
-    case (heatButton.checked): previewImage.style.filter = `brightness(${level})`; break;
+  const effect = sliderParameters[imageUploadForm.querySelector('input.effects__radio:checked').id]; // активный эффект
+  if (effect) { // при старте программы эффект выводился как пустой (почему?), поэтому - через if
+    previewImage.style.filter = (effect[3] + level + effect[4]); // создаем строку, содержащую необходимый стиль
   }
 });
 
