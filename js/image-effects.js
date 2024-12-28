@@ -88,7 +88,7 @@ sliderElement.noUiSlider.on('update', () => {
   const level = sliderElement.noUiSlider.get();
   effectLevel.value = level;
   const effect = sliderParameters[imageUploadForm.querySelector('input.effects__radio:checked').id]; // активный эффект
-  if (effect) { // при старте программы эффект выводился как пустой (почему?), поэтому - через if
+  if (effect) { // на старте checked у effect-none, для него нет данных ( выходит пустой массив), поэтому - проверка
     previewImage.style.filter = (effect[3] + level + effect[4]); // создаем строку, содержащую необходимый стиль
   }
 });
