@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomInteger} from './utils.js';
+import { getRandomArrayElement, getRandomInteger } from './utils.js';
 
 //Константы с данными
 const NAMES = [
@@ -43,7 +43,7 @@ const COMMENT_ID_COUNT = 999999;
 const AVATARS_COUNT = 6;
 
 //Функция, возвращающая функцию-генератор id (учитывающий повторения)
-function createRandomIdFromRangeGenerator(min, max) {
+function createRandomIdFromRangeGenerator(min, max) { // function declaration так как нужен контекст функции (замыкание)
   const previousValues = [];
 
   return function () {
@@ -62,13 +62,13 @@ function createRandomIdFromRangeGenerator(min, max) {
 //Функции - генераторы id для данных, где запрещены повторения
 const generateMainId = createRandomIdFromRangeGenerator(1, MAIN_ID_COUNT);
 const generateUrlId = createRandomIdFromRangeGenerator(1, URL_ID_COUNT);
-const generateCommentId = createRandomIdFromRangeGenerator(1,COMMENT_ID_COUNT);
+const generateCommentId = createRandomIdFromRangeGenerator(1, COMMENT_ID_COUNT);
 
 //Функция для создания комментариев
 const createComment = () => ({
   id: generateCommentId(),
-  avatar: `img/avatar-${getRandomInteger(1,AVATARS_COUNT)}.svg`,
-  message: `${getRandomArrayElement(MESSAGES)}${getRandomInteger(0,1) ? ` ${getRandomArrayElement(MESSAGES)}` : '' }`,
+  avatar: `img/avatar-${getRandomInteger(1, AVATARS_COUNT)}.svg`,
+  message: `${getRandomArrayElement(MESSAGES)}${getRandomInteger(0, 1) ? ` ${getRandomArrayElement(MESSAGES)}` : ''}`,
   name: getRandomArrayElement(NAMES),
 });
 
@@ -77,7 +77,7 @@ const createPhoto = () => ({
   id: generateMainId(),
   url: `photos/${generateUrlId()}.jpg`,
   description: getRandomArrayElement(PHOTO_DESCRIPTIONS),
-  likes: getRandomInteger(LIKES_COUNT_BOTTOM,LIKES_COUNT_TOP),
+  likes: getRandomInteger(LIKES_COUNT_BOTTOM, LIKES_COUNT_TOP),
   comment: Array.from({ length: getRandomInteger(0, COMMENTS_MAX_COUNT) }, createComment)
 });
 
@@ -85,4 +85,4 @@ const createPhoto = () => ({
 const createPhotosArray = () => (Array.from({ length: PHOTOS_COUNT }, createPhoto));
 
 //Экспорт функции
-export {createPhotosArray};
+export { createPhotosArray };
