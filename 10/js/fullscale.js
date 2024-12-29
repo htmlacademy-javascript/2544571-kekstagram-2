@@ -1,5 +1,7 @@
-import { isEscapeKey } from './utils.js'; // Импортируем функцию проверки нажатия Esc
-import { genPicturesArray } from './miniatures.js'; // Импортируем массив, на основе которого отрисовывались фотографии
+// Импортируем функцию проверки нажатия Esc
+import { isEscapeKey } from './utils.js';
+// Импортируем массив, на основе которого отрисовывались фотографии
+import { genPicturesArray } from './miniatures.js';
 
 // Находим элементы на странице
 const bigPicture = document.querySelector('.big-picture');
@@ -48,15 +50,15 @@ const genComments = (dataArray) => {
 };
 
 // Функция для порционной генерации комментариев
-
-function getCommentsPortion() {
+const getCommentsPortion = () => {
   const portionArray = commentsArray.slice(active, active + COMMENTS_PACE); // пробуем сделать порцию-срез массива
   genComments(portionArray); // генерируем комменты по этой порции массива
   if ((commentsArray.length - active) <= COMMENTS_PACE) { // скрываем кнопку если эта итерация была последней
     commentsLoader.classList.add('hidden');
   }
-  shownCommentsCount.textContent = active += portionArray.length; // обновляем счетчик И обновляем active
-}
+  active = active + portionArray.length;
+  shownCommentsCount.textContent = active; // обновляем счетчик И обновляем active
+};
 
 // Функция для обработчика события на нажатие Esc при открытом модальном окне
 const onDocumentKeyDown = (evt) => {
@@ -67,15 +69,15 @@ const onDocumentKeyDown = (evt) => {
 };
 
 // Функция открытия модального окна
-function openBigPicture() {
+const openBigPicture = () => {
   bigPicture.classList.remove('hidden');
   bodyElement.classList.add('modal-open');
 
   document.addEventListener('keydown', onDocumentKeyDown);
-}
+};
 
 // Функция закрытия модального окна
-function closeBigPicture() {
+function closeBigPicture() { // function declaration так как нужно поднятие для использования в onDocumentKeyDown
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   commentsLoader.classList.remove('hidden'); // Открываем кнопку-загрузчик комментариев (это состояние по умолчанию)
@@ -89,7 +91,7 @@ function closeBigPicture() {
 }
 
 // Функция для обработчика события по клику на миниатюру
-function onMiniatureClick(evt) {
+const onMiniatureClick = (evt) => {
   if (evt.target.matches('img[class="picture__img"]')) {
     evt.preventDefault();
     // Проверяем дата-атрибут фотографии с ее айди в массиве данных
@@ -102,7 +104,8 @@ function onMiniatureClick(evt) {
     getCommentsPortion();
     openBigPicture();
   }
-}
+};
+
 // Добавляем событие на кнопку "Загрузить еще"
 commentsLoader.addEventListener('click', getCommentsPortion);
 

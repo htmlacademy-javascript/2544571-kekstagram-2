@@ -1,5 +1,3 @@
-// модуль для задания 9.2
-
 const imageUploadForm = document.querySelector('.img-upload__form');
 const smallerButton = imageUploadForm.querySelector('.scale__control--smaller');
 const biggerButton = imageUploadForm.querySelector('.scale__control--bigger');
@@ -10,60 +8,43 @@ const sliderContainer = imageUploadForm.querySelector('.img-upload__effect-level
 const effectsList = imageUploadForm.querySelector('.effects__list');
 const effectLevel = imageUploadForm.querySelector('.effect-level__value');
 
-const sepiaButton = imageUploadForm.querySelector('#effect-sepia');
-const chromeButton = imageUploadForm.querySelector('#effect-chrome');
-const marvinButton = imageUploadForm.querySelector('#effect-marvin');
-const phobosButton = imageUploadForm.querySelector('#effect-phobos');
-const heatButton = imageUploadForm.querySelector('#effect-heat');
-
-// Далее код для изменения масштаба:
-
-const scaleMeasures = { // Параметры для масштаба
-  max: 100,
-  min: 25,
-  step: 25
+// Параметры для масштаба ПЕРЕЧИСЛЕНИЕ?
+const ScaleMeasures = {
+  MAX: 100,
+  MIN: 25,
+  STEP: 25
 };
 
-let scale = 100; // Глобальная переменная для масштаба
+// Глобальная переменная для масштаба
+let scale = 100;
 
-smallerButton.addEventListener('click', () => { // Функция для кнопки "меньше"
-  if (scale > scaleMeasures.min) {
-    scale -= scaleMeasures.step;
-    scaleInput.value = `${scale}%`;
-    previewImage.style.transform = `scale(${scale / 100})`;
-  }
-});
-
-biggerButton.addEventListener('click', () => { // Функция для кнопки "больше"
-  if (scale < scaleMeasures.max) {
-    scale += scaleMeasures.step;
-    scaleInput.value = `${scale}%`;
-    previewImage.style.transform = `scale(${scale / 100})`;
-  }
-});
-
-// Далее код для слайдера и эффектов:
-
-sliderContainer.classList.add('hidden'); // Скрываем контейнер слайдера по умолчанию
-
-const sliderParameters = { // Параметры слайдера для разных фильтров (мин, макс, шаг)
-  chrome: [0, 1, 0.1],
-  sepia: [0, 1, 0.1],
-  marvin: [0, 100, 1],
-  phobos: [0, 3, 0.1],
-  heat: [1, 3, 0.1],
+// Параметры слайдера для разных фильтров (эффект: мин, макс, шаг, стиль, единицы измерения) СЛОВАРЬ?
+const sliderParameters = {
+  'effect-chrome': [0, 1, 0.1, 'grayscale(', ')'],
+  'effect-sepia': [0, 1, 0.1, 'sepia(', ')'],
+  'effect-marvin': [0, 100, 1, 'invert(', '%)'],
+  'effect-phobos': [0, 3, 0.1, 'blur(', 'px)'],
+  'effect-heat': [1, 3, 0.1, 'brightness(', ')'],
 };
 
-function getSliderSetting(filter) { // Функция для получения параметров в зависимости от фильтра
-  const elem = sliderParameters[filter];
-  const parameter =
+// функция, увеличивающая или уменьшающая масштаб на размер шага
+const addOrSubtractScaleStep = (condition) => {
+  scale = (condition) ? scale + ScaleMeasures.STEP : scale - ScaleMeasures.STEP;
+  scaleInput.value = `${scale}%`;
+  previewImage.style.transform = `scale(${scale / 100})`;
+};
+
+// Функция для получения параметров слайдера в зависимости от фильтра
+const getSliderSetting = (effect) => {
+  const sliderParameter = sliderParameters[effect];
+  const sliderSetting =
   {
     range: {
-      min: elem[0],
-      max: elem[1],
+      min: sliderParameter[0],
+      max: sliderParameter[1],
     },
-    start: elem[1],
-    step: elem[2],
+    start: sliderParameter[1],
+    step: sliderParameter[2],
     connect: 'lower',
     format: {
       to: function (value) {
@@ -74,49 +55,63 @@ function getSliderSetting(filter) { // Функция для получения 
       },
     },
   };
-  return parameter;
-}
+  return sliderSetting;
+};
 
-function setSlider(filter) { // функция, выводящая слайдер с нужными настройками
-  sliderElement.noUiSlider.updateOptions(getSliderSetting(filter));
+// функция, создающая слайдер с нужными настройками
+const setSlider = (effect) => {
+  sliderElement.noUiSlider.updateOptions(getSliderSetting(effect));
   sliderContainer.classList.remove('hidden');
-}
+};
 
-noUiSlider.create(sliderElement, getSliderSetting('chrome')); // создаем слайдер (параметры не важны, так как он скрыт)
-
-effectsList.addEventListener('change', (evt) => { // устанавливаем событие на кнопки переключения эффектов
-  switch (true) {
-    case (evt.target.matches('#effect-chrome')): setSlider('chrome'); break;
-    case (evt.target.matches('#effect-sepia')): setSlider('sepia'); break;
-    case (evt.target.matches('#effect-marvin')): setSlider('marvin'); break;
-    case (evt.target.matches('#effect-phobos')): setSlider('phobos'); break;
-    case (evt.target.matches('#effect-heat')): setSlider('heat'); break;
-    case (evt.target.matches('#effect-none')): // переключение на фильтр без эффектов сбрасывает все параметры
-      sliderContainer.classList.add('hidden');
-      effectLevel.value = 100;
-      previewImage.style.removeProperty('filter');
-      break;
-  }
-});
-
-sliderElement.noUiSlider.on('update', () => { // устанавливаем событие на движение слайдера, в зависимости от эффекта
-  const level = sliderElement.noUiSlider.get();
-  effectLevel.value = level;
-  switch (true) {
-    case (chromeButton.checked): previewImage.style.filter = `grayscale(${level})`; break;
-    case (sepiaButton.checked): previewImage.style.filter = `sepia(${level})`; break;
-    case (marvinButton.checked): previewImage.style.filter = `invert(${level}%)`; break;
-    case (phobosButton.checked): previewImage.style.filter = `blur(${level}px)`; break;
-    case (heatButton.checked): previewImage.style.filter = `brightness(${level})`; break;
-  }
-});
-
-function resetEffectsParameters() { // функция ресета параметров эффектов
-  scale = 100;
-  previewImage.style.removeProperty('transform');
+// функция ресета параметров слайдера
+const resetSliderEffects = () => {
   previewImage.style.removeProperty('filter');
   sliderContainer.classList.add('hidden');
   effectLevel.value = 100;
-}
+};
+
+// функция ресета всех параметров эффектов (слайдер + масштаб)
+const resetEffectsParameters = () => {
+  scale = 100;
+  previewImage.style.removeProperty('transform');
+  resetSliderEffects();
+};
+
+// добавляем событие на кнопку "уменьшить масштаб"
+smallerButton.addEventListener('click', () => {
+  if (scale > ScaleMeasures.MIN) {
+    addOrSubtractScaleStep(false);
+  }
+});
+
+// добавляем событие на кнопку "увеличить масштаб"
+biggerButton.addEventListener('click', () => {
+  if (scale < ScaleMeasures.MAX) {
+    addOrSubtractScaleStep(true);
+  }
+});
+
+// Скрываем контейнер слайдера по умолчанию
+sliderContainer.classList.add('hidden');
+
+// создаем слайдер (параметры не важны, так как он скрыт)
+noUiSlider.create(sliderElement, getSliderSetting('effect-chrome'));
+
+// устанавливаем событие на кнопки переключения эффектов
+effectsList.addEventListener('change', (evt) => {
+  const id = evt.target.id;
+  return id === 'effect-none' ? resetSliderEffects() : setSlider(id);
+});
+
+// устанавливаем событие на движение слайдера, в зависимости от эффекта
+sliderElement.noUiSlider.on('update', () => {
+  const level = sliderElement.noUiSlider.get();
+  effectLevel.value = level;
+  const effect = sliderParameters[imageUploadForm.querySelector('input.effects__radio:checked').id]; // активный эффект
+  if (effect) { // на старте checked у effect-none, для него нет данных ( выходит пустой массив), поэтому - проверка
+    previewImage.style.filter = (effect[3] + level + effect[4]); // создаем строку, содержащую необходимый стиль
+  }
+});
 
 export { resetEffectsParameters }; // экспортируем функцию ресета параметров (в модуль form.js)
