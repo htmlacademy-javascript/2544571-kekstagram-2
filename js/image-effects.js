@@ -15,6 +15,9 @@ const ScaleMeasures = {
   STEP: 25
 };
 
+// Глобальная переменная для масштаба
+let scale = 100;
+
 // Параметры слайдера для разных фильтров (эффект: мин, макс, шаг, стиль, единицы измерения) СЛОВАРЬ?
 const sliderParameters = {
   'effect-chrome': [0, 1, 0.1, 'grayscale(', ')'],
@@ -24,10 +27,14 @@ const sliderParameters = {
   'effect-heat': [1, 3, 0.1, 'brightness(', ')'],
 };
 
-// Глобальная переменная для масштаба
-let scale = 100;
+// функция, увеличивающая или уменьшающая масштаб на размер шага
+const addOrSubtractScaleStep = (condition) => {
+  scale = (condition) ? scale + ScaleMeasures.STEP : scale - ScaleMeasures.STEP;
+  scaleInput.value = `${scale}%`;
+  previewImage.style.transform = `scale(${scale / 100})`;
+};
 
-// Функция для получения параметров в зависимости от фильтра
+// Функция для получения параметров слайдера в зависимости от фильтра
 const getSliderSetting = (effect) => {
   const sliderParameter = sliderParameters[effect];
   const sliderSetting =
@@ -51,7 +58,7 @@ const getSliderSetting = (effect) => {
   return sliderSetting;
 };
 
-// функция, выводящая слайдер с нужными настройками
+// функция, создающая слайдер с нужными настройками
 const setSlider = (effect) => {
   sliderElement.noUiSlider.updateOptions(getSliderSetting(effect));
   sliderContainer.classList.remove('hidden');
@@ -70,6 +77,20 @@ const resetEffectsParameters = () => {
   previewImage.style.removeProperty('transform');
   resetSliderEffects();
 };
+
+// добавляем событие на кнопку "уменьшить масштаб"
+smallerButton.addEventListener('click', () => {
+  if (scale > ScaleMeasures.MIN) {
+    addOrSubtractScaleStep(false);
+  }
+});
+
+// добавляем событие на кнопку "увеличить масштаб"
+biggerButton.addEventListener('click', () => {
+  if (scale < ScaleMeasures.MAX) {
+    addOrSubtractScaleStep(true);
+  }
+});
 
 // Скрываем контейнер слайдера по умолчанию
 sliderContainer.classList.add('hidden');
@@ -90,22 +111,6 @@ sliderElement.noUiSlider.on('update', () => {
   const effect = sliderParameters[imageUploadForm.querySelector('input.effects__radio:checked').id]; // активный эффект
   if (effect) { // на старте checked у effect-none, для него нет данных ( выходит пустой массив), поэтому - проверка
     previewImage.style.filter = (effect[3] + level + effect[4]); // создаем строку, содержащую необходимый стиль
-  }
-});
-
-smallerButton.addEventListener('click', () => { // Функция для кнопки "меньше"
-  if (scale > ScaleMeasures.MIN) {
-    scale -= ScaleMeasures.STEP;
-    scaleInput.value = `${scale}%`;
-    previewImage.style.transform = `scale(${scale / 100})`;
-  }
-});
-
-biggerButton.addEventListener('click', () => { // Функция для кнопки "больше"
-  if (scale < ScaleMeasures.MAX) {
-    scale += ScaleMeasures.STEP;
-    scaleInput.value = `${scale}%`;
-    previewImage.style.transform = `scale(${scale / 100})`;
   }
 });
 
