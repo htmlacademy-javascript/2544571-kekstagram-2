@@ -1,5 +1,7 @@
-import { isEscapeKey } from './utils.js'; // Импортируем функцию проверки нажатия Esc
-import { genPicturesArray } from './miniatures.js'; // Импортируем массив, на основе которого отрисовывались фотографии
+// Импортируем функцию проверки нажатия Esc
+import { isEscapeKey } from './utils.js';
+// Импортируем массив, на основе которого отрисовывались фотографии
+import { genPicturesArray } from './miniatures.js';
 
 // Находим элементы на странице
 const bigPicture = document.querySelector('.big-picture');
@@ -47,32 +49,16 @@ const genComments = (dataArray) => {
   commentContainer.appendChild(genCommentsFragment);
 };
 
-// Функция для вывода количества показанных комментариев к фотографии
-const getShownComments = () => {
-  shownCommentsCount.textContent = active;
-};
-
 // Функция для порционной генерации комментариев
-
-function getCommentsPortion() {
-  const total = commentsArray.length;
-  const hidden = total - active;
-  const caseParam = true;
-  switch (caseParam) {
-    case (hidden === 0): // Скрытых комментариев 0 - скрываем кнопку (счетчик остается на нуле тоже)
-      commentsLoader.classList.add('hidden'); break;
-    case (hidden <= COMMENTS_PACE): // Скрытых комментариев меньше константы - добавляем все до конца, скрываем кнопку
-      genComments(commentsArray.slice(active, total));
-      commentsLoader.classList.add('hidden');
-      active = total; // Увеличиваем счетчик до значения "все комментарии"
-      break;
-    case (hidden > COMMENTS_PACE): // Скрытых комментариев больше константы - добавляем количество по константе
-      genComments(commentsArray.slice(active, active + COMMENTS_PACE));
-      active += COMMENTS_PACE; // Увеличиваем счетчик на константу
-      break;
+const getCommentsPortion = () => {
+  const portionArray = commentsArray.slice(active, active + COMMENTS_PACE); // пробуем сделать порцию-срез массива
+  genComments(portionArray); // генерируем комменты по этой порции массива
+  if ((commentsArray.length - active) <= COMMENTS_PACE) { // скрываем кнопку если эта итерация была последней
+    commentsLoader.classList.add('hidden');
   }
-  getShownComments();
-}
+  active = active + portionArray.length;
+  shownCommentsCount.textContent = active; // обновляем счетчик И обновляем active
+};
 
 // Функция для обработчика события на нажатие Esc при открытом модальном окне
 const onDocumentKeyDown = (evt) => {
@@ -83,15 +69,15 @@ const onDocumentKeyDown = (evt) => {
 };
 
 // Функция открытия модального окна
-function openBigPicture() {
+const openBigPicture = () => {
   bigPicture.classList.remove('hidden');
   bodyElement.classList.add('modal-open');
 
   document.addEventListener('keydown', onDocumentKeyDown);
-}
+};
 
 // Функция закрытия модального окна
-function closeBigPicture() {
+function closeBigPicture() { // function declaration так как нужно поднятие для использования в onDocumentKeyDown
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   commentsLoader.classList.remove('hidden'); // Открываем кнопку-загрузчик комментариев (это состояние по умолчанию)
@@ -105,7 +91,7 @@ function closeBigPicture() {
 }
 
 // Функция для обработчика события по клику на миниатюру
-function onMiniatureClick(evt) {
+const onMiniatureClick = (evt) => {
   if (evt.target.matches('img[class="picture__img"]')) {
     evt.preventDefault();
     // Проверяем дата-атрибут фотографии с ее айди в массиве данных
@@ -118,7 +104,8 @@ function onMiniatureClick(evt) {
     getCommentsPortion();
     openBigPicture();
   }
-}
+};
+
 // Добавляем событие на кнопку "Загрузить еще"
 commentsLoader.addEventListener('click', getCommentsPortion);
 
@@ -127,5 +114,4 @@ bigPictureCloseButton.addEventListener('click', closeBigPicture);
 
 // Добавляем событие на миниатюры (родительский элемент)
 picturesContainer.addEventListener('click', onMiniatureClick);
-
 
