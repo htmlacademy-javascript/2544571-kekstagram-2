@@ -1,3 +1,4 @@
+// выполнение задания 9.2
 const imageUploadForm = document.querySelector('.img-upload__form');
 const smallerButton = imageUploadForm.querySelector('.scale__control--smaller');
 const biggerButton = imageUploadForm.querySelector('.scale__control--bigger');
