@@ -82,6 +82,7 @@ function closeUploadOverlay() { // function declaration так как нужно
   bodyElement.classList.remove('modal-open');
 
   imageUploadForm.reset(); // вызываем ресет формы после закрытия модального окна
+  pristine.reset(); // ресет Пристин (иначе при открытии остаются висеть сообщения об ошибках с прошлого раза)
   resetEffectsParameters(); // вызываем ресет параметров для эффектов изображения
 
   document.removeEventListener('keydown', onDocumentKeyDown);
