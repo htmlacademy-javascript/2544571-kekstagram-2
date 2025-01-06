@@ -10,9 +10,12 @@ import './form.js';
 //Импорт функции для получения данных
 import { getData } from './api.js';
 
+import { showDataError } from './utils.js';
+
 // загружаем данные, отрисовываем миниатюры, создаем модальное окно
 getData()
   .then((array) => {
     getMiniatures(array);
     setFullscale(array);
-  });
+  })
+  .catch(showDataError);

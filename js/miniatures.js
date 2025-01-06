@@ -1,4 +1,4 @@
-// Находим необходимые элементы в разметке, создаем массив картинок и фрагмент
+// Находим необходимые элементы в разметке, создаем фрагмент
 const genPicturesContainer = document.querySelector('.pictures');
 const genPictureTemplate = document.querySelector('#picture').content;
 const genPicturesFragment = document.createDocumentFragment();
