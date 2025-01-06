@@ -1,3 +1,6 @@
+// импорт функции отправки данных
+import { sendData } from './api.js';
+
 // Импортируем функцию проверки нажатия Esc
 import { isEscapeKey } from './utils.js';
 
@@ -6,6 +9,7 @@ import { resetEffectsParameters } from './image-effects.js';
 
 const bodyElement = document.querySelector('body');
 const imageUploadForm = document.querySelector('.img-upload__form');
+const uploadButton = imageUploadForm.querySelector('#upload-submit');
 const imageUploadInput = imageUploadForm.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const uploadOverlayCloseButton = uploadOverlay.querySelector('.img-upload__cancel');
@@ -32,6 +36,16 @@ const pristine = new Pristine(imageUploadForm, {
   errorTextTag: 'div',
   errorTextClass: 'img-upload__field-wrapper--error'
 }, true);
+
+
+// функции для блокировки и разблокировки кнопки отправки формы
+const blockUploadButton = () => {
+  uploadButton.disabled = true;
+};
+
+const unblockUploadButton = () => {
+  uploadButton.disabled = false;
+};
 
 // функция проверки длины комментария
 const validateCommentLength = (value) => value.length <= COMMENT_LENGTH;
@@ -108,10 +122,27 @@ imageUploadInput.addEventListener('change', () => {
   openUploadOverlay();
 });
 
+/*
 // не даем отправить форму если не пройдена валидация
 imageUploadForm.addEventListener('submit', (evt) => {
   if (!pristine.validate()) {
     evt.preventDefault();
   }
-});
+}); */
 
+imageUploadForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  const isValid = pristine.validate();
+  if (isValid) {
+    blockUploadButton();
+    sendData(new FormData(evt.target))
+      .then(closeUploadOverlay)
+      .catch(
+        (err) => {
+          console.log(err.message);
+        }
+      )
+      .finally(unblockUploadButton);
+  }
+});
