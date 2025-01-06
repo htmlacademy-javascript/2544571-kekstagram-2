@@ -18,6 +18,6 @@ const getMiniatures = (array) => {
   // Добавляем фрагмент в разметку
   genPicturesContainer.appendChild(genPicturesFragment);
 
-}
+};
 
 export { getMiniatures };
