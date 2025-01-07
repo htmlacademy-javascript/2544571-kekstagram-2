@@ -1,7 +1,7 @@
 // импорт функции отправки данных
 import { sendData } from './api.js';
 
-// Импортируем функции из утилитарного модуля
+// Импортируем функции из утилитарного модуля (ескейп, показ алерта, скрытие алерта)
 import { isEscapeKey, showUploadAlert, hideUploadAlert } from './utils.js';
 
 // импортируем функцию сброса эффектов изображения
@@ -76,24 +76,11 @@ const validateHastagsAreUnique = (value) => {
 // функция закрытия модального окна по Esc
 const onDocumentKeyDown = (evt) => {
   const activeElement = document.activeElement; // ПРАВКА - добавлено условие на активные поля хэштега и коммента
-  if (isEscapeKey(evt) && activeElement !== commentsInput && activeElement !== hashtagsInput) {
+  const err = document.querySelector('.error'); // условие, чтобы не закрывалось, когда алерт выведен
+  const ok = document.querySelector('.success');
+  if (isEscapeKey(evt) && activeElement !== commentsInput && activeElement !== hashtagsInput && !err && !ok) {
     evt.preventDefault();
     closeUploadOverlay();
-  }
-};
-
-const onAlertDocumentKeyDown = (evt) => {
-  if (isEscapeKey(evt)) {
-    const element = document.querySelector('.success') ? 'success' : 'error';
-    evt.preventDefault();
-    closeAlert(element);
-  }
-};
-
-const onDocumentClick = (evt) => {
-  const element = document.querySelector('.success') ? 'success' : 'error';
-  if (evt.target === document.querySelector(`.${element}`)) {
-    closeAlert(element);
   }
 };
 
@@ -105,25 +92,6 @@ const openUploadOverlay = () => {
   document.addEventListener('keydown', onDocumentKeyDown);
 };
 
-const openAlert = (result) => {
-  showUploadAlert(result);
-  if (result === 'error') {
-    document.removeEventListener('keydown', onDocumentKeyDown);
-  }
-  document.addEventListener('click', onDocumentClick);
-  document.querySelector(`.${result}__button`).addEventListener('click', () => closeAlert(result));
-  document.addEventListener('keydown', onAlertDocumentKeyDown);
-};
-
-function closeAlert(result) {
-  hideUploadAlert(result);
-  document.removeEventListener('click', onDocumentClick);
-  document.removeEventListener('keydown', onAlertDocumentKeyDown);
-  if (result === 'error') {
-    document.addEventListener('keydown', onDocumentKeyDown);
-  }
-}
-
 // Функция закрытия модального окна
 function closeUploadOverlay() { // function declaration так как нужно поднятие для использования в onDocumentKeyDown
   uploadOverlay.classList.add('hidden');
@@ -133,6 +101,37 @@ function closeUploadOverlay() { // function declaration так как нужно
   resetEffectsParameters(); // вызываем ресет параметров для эффектов изображения
 
   document.removeEventListener('keydown', onDocumentKeyDown);
+}
+// функция закрытия алерта по эскейп
+const onAlertDocumentKeyDown = (evt) => {
+  if (isEscapeKey(evt)) {
+    const element = document.querySelector('.success') ? 'success' : 'error';
+    evt.preventDefault();
+    closeAlert(element);
+  }
+};
+
+// функция закрытия алерта по клику за краем
+const onDocumentClick = (evt) => {
+  const element = document.querySelector('.success') ? 'success' : 'error';
+  if (evt.target === document.querySelector(`.${element}`)) {
+    closeAlert(element);
+  }
+};
+
+// функция открытия алерта
+const openAlert = (result) => {
+  showUploadAlert(result);
+  document.addEventListener('click', onDocumentClick);
+  document.querySelector(`.${result}__button`).addEventListener('click', () => closeAlert(result));
+  document.addEventListener('keydown', onAlertDocumentKeyDown);
+};
+
+// функция закрытия алерта
+function closeAlert(result) { // function declaration так как нужна выше
+  hideUploadAlert(result);
+  document.removeEventListener('click', onDocumentClick);
+  document.removeEventListener('keydown', onAlertDocumentKeyDown);
 }
 
 // добавляем валидатор на длину комментария
@@ -155,17 +154,18 @@ imageUploadInput.addEventListener('change', () => {
   openUploadOverlay();
 });
 
+// добавляем событие на отправку формы
 imageUploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   const isValid = pristine.validate();
   if (isValid) {
-    blockUploadButton();
-    sendData(new FormData(evt.target))
-      .then(closeUploadOverlay)
-      .then(() => openAlert('success'))
-      .catch(() => openAlert('error'))
-      .finally(unblockUploadButton);
+    blockUploadButton(); // блокируем кнопку
+    sendData(new FormData(evt.target)) // пробуем отправить
+      .then(closeUploadOverlay) // успех - закрываем оверлей
+      .then(() => openAlert('success')) // успех - показываем алерт об успехе
+      .catch(() => openAlert('error')) // ошибка - показываем алерт об ошибке
+      .finally(unblockUploadButton); // в любом случае - разблокируем кнопку
   }
 });
 
