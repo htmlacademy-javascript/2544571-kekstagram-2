@@ -1,7 +1,5 @@
 const DATA_ERROR_SHOW_TIME = 5000;
 
-const successUploadTemplate = document.querySelector('#success').content;
-const errorUploadTemplate = document.querySelector('#error').content;
 const dataErrorTemplate = document.querySelector('#data-error').content;
 const bodyElement = document.querySelector('body');
 
@@ -11,7 +9,13 @@ const createElement = (template) => {
   bodyElement.appendChild(element);
 };
 
-// функция показа ошибки при загрузке данных
+// функция показа/удаления сообщения об ошибке/успехе отправки данных
+
+const showUploadAlert = (result) => createElement(document.querySelector(`#${result}`).content);
+
+const hideUploadAlert = (result) => document.querySelector(`.${result}`).remove();
+
+// функция показа ошибки при загрузке данных (c таймером)
 const showDataError = () => {
   createElement(dataErrorTemplate);
   setTimeout(() => {
@@ -34,6 +38,5 @@ const getRandomArrayElement = (elements) => elements[getRandomInteger(0, element
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
 //Экспорт функций
-export { getRandomArrayElement, getRandomInteger, isEscapeKey, showDataError };
-
+export { getRandomArrayElement, getRandomInteger, isEscapeKey, showDataError, showUploadAlert, hideUploadAlert };
 

@@ -1,8 +1,8 @@
 // импорт функции отправки данных
 import { sendData } from './api.js';
 
-// Импортируем функцию проверки нажатия Esc
-import { isEscapeKey } from './utils.js';
+// Импортируем функции из утилитарного модуля
+import { isEscapeKey, showUploadAlert, hideUploadAlert } from './utils.js';
 
 // импортируем функцию сброса эффектов изображения
 import { resetEffectsParameters } from './image-effects.js';
@@ -82,6 +82,14 @@ const onDocumentKeyDown = (evt) => {
   }
 };
 
+const onAlertDocumentKeyDown = (evt) => {
+  if (isEscapeKey(evt)) {
+    const element = document.querySelector('.success') ? 'success' : 'error';
+    evt.preventDefault();
+    closeAlert(element);
+  }
+};
+
 // Функция открытия модального окна
 const openUploadOverlay = () => {
   uploadOverlay.classList.remove('hidden');
@@ -90,11 +98,27 @@ const openUploadOverlay = () => {
   document.addEventListener('keydown', onDocumentKeyDown);
 };
 
+const openAlert = (result) => {
+  showUploadAlert(result);
+  if (result === 'error') {
+    document.removeEventListener('keydown', onDocumentKeyDown);
+  }
+  document.querySelector(`.${result}__button`).addEventListener('click', () => closeAlert(result));
+  document.addEventListener('keydown', onAlertDocumentKeyDown);
+};
+
+function closeAlert(result) {
+  hideUploadAlert(result);
+  document.removeEventListener('keydown', onAlertDocumentKeyDown);
+  if (result === 'error') {
+    document.addEventListener('keydown', onDocumentKeyDown);
+  }
+}
+
 // Функция закрытия модального окна
 function closeUploadOverlay() { // function declaration так как нужно поднятие для использования в onDocumentKeyDown
   uploadOverlay.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
-
   imageUploadForm.reset(); // вызываем ресет формы после закрытия модального окна
   pristine.reset(); // ресет Пристин (иначе при открытии остаются висеть сообщения об ошибках с прошлого раза)
   resetEffectsParameters(); // вызываем ресет параметров для эффектов изображения
@@ -122,14 +146,6 @@ imageUploadInput.addEventListener('change', () => {
   openUploadOverlay();
 });
 
-/*
-// не даем отправить форму если не пройдена валидация
-imageUploadForm.addEventListener('submit', (evt) => {
-  if (!pristine.validate()) {
-    evt.preventDefault();
-  }
-}); */
-
 imageUploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
@@ -138,11 +154,9 @@ imageUploadForm.addEventListener('submit', (evt) => {
     blockUploadButton();
     sendData(new FormData(evt.target))
       .then(closeUploadOverlay)
-      .catch(
-        (err) => {
-          console.log(err.message);
-        }
-      )
+      .then(() => openAlert('success'))
+      .catch(() => openAlert('error'))
       .finally(unblockUploadButton);
   }
 });
+
