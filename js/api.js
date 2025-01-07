@@ -11,14 +11,9 @@ const Method = {
   POST: 'POST',
 };
 
-// константы для текста ошибок
-const ErrorText = {
-  GET_DATA: 'Не удалось загрузить данные. Попробуйте обновить страницу',
-  SEND_DATA: 'Не удалось отправить форму. Попробуйте ещё раз',
-};
 
 // базовая функция для загрузки/отправки
-const load = (route, errorText, method = Method.GET, body = null) =>
+const load = (route, method = Method.GET, body = null) =>
   fetch(`${BASE_URL}${route}`, {method, body})
     .then((response) => {
       if (!response.ok) {
@@ -27,14 +22,14 @@ const load = (route, errorText, method = Method.GET, body = null) =>
       return response.json();
     })
     .catch(() => {
-      throw new Error(errorText);
+      throw new Error();
     });
 
 // функция для загрузки
-const getData = () => load(Route.GET_DATA, ErrorText.GET_DATA);
+const getData = () => load(Route.GET_DATA);
 
 // функция для отправки
-const sendData = (body) => load(Route.SEND_DATA, ErrorText.SEND_DATA, Method.POST, body);
+const sendData = (body) => load(Route.SEND_DATA, Method.POST, body);
 
 // экспорт функций
 export {getData, sendData};
