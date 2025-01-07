@@ -90,6 +90,13 @@ const onAlertDocumentKeyDown = (evt) => {
   }
 };
 
+const onDocumentClick = (evt) => {
+  const element = document.querySelector('.success') ? 'success' : 'error';
+  if (evt.target === document.querySelector(`.${element}`)) {
+    closeAlert(element);
+  }
+};
+
 // Функция открытия модального окна
 const openUploadOverlay = () => {
   uploadOverlay.classList.remove('hidden');
@@ -103,12 +110,14 @@ const openAlert = (result) => {
   if (result === 'error') {
     document.removeEventListener('keydown', onDocumentKeyDown);
   }
+  document.addEventListener('click', onDocumentClick);
   document.querySelector(`.${result}__button`).addEventListener('click', () => closeAlert(result));
   document.addEventListener('keydown', onAlertDocumentKeyDown);
 };
 
 function closeAlert(result) {
   hideUploadAlert(result);
+  document.removeEventListener('click', onDocumentClick);
   document.removeEventListener('keydown', onAlertDocumentKeyDown);
   if (result === 'error') {
     document.addEventListener('keydown', onDocumentKeyDown);
