@@ -1,11 +1,15 @@
-// Импортируем функцию проверки нажатия Esc
-import { isEscapeKey } from './utils.js';
+// импорт функции отправки данных
+import { sendData } from './api.js';
+
+// Импортируем функции из утилитарного модуля (ескейп, показ алерта, скрытие алерта)
+import { isEscapeKey, showUploadAlert, hideUploadAlert } from './utils.js';
 
 // импортируем функцию сброса эффектов изображения
 import { resetEffectsParameters } from './image-effects.js';
 
 const bodyElement = document.querySelector('body');
 const imageUploadForm = document.querySelector('.img-upload__form');
+const uploadButton = imageUploadForm.querySelector('#upload-submit');
 const imageUploadInput = imageUploadForm.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const uploadOverlayCloseButton = uploadOverlay.querySelector('.img-upload__cancel');
@@ -32,6 +36,16 @@ const pristine = new Pristine(imageUploadForm, {
   errorTextTag: 'div',
   errorTextClass: 'img-upload__field-wrapper--error'
 }, true);
+
+
+// функции для блокировки и разблокировки кнопки отправки формы
+const blockUploadButton = () => {
+  uploadButton.disabled = true;
+};
+
+const unblockUploadButton = () => {
+  uploadButton.disabled = false;
+};
 
 // функция проверки длины комментария
 const validateCommentLength = (value) => value.length <= COMMENT_LENGTH;
@@ -62,7 +76,9 @@ const validateHastagsAreUnique = (value) => {
 // функция закрытия модального окна по Esc
 const onDocumentKeyDown = (evt) => {
   const activeElement = document.activeElement; // ПРАВКА - добавлено условие на активные поля хэштега и коммента
-  if (isEscapeKey(evt) && activeElement !== commentsInput && activeElement !== hashtagsInput) {
+  const err = document.querySelector('.error'); // условие, чтобы не закрывалось, когда алерт выведен
+  const ok = document.querySelector('.success');
+  if (isEscapeKey(evt) && activeElement !== commentsInput && activeElement !== hashtagsInput && !err && !ok) {
     evt.preventDefault();
     closeUploadOverlay();
   }
@@ -80,11 +96,42 @@ const openUploadOverlay = () => {
 function closeUploadOverlay() { // function declaration так как нужно поднятие для использования в onDocumentKeyDown
   uploadOverlay.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
-
   imageUploadForm.reset(); // вызываем ресет формы после закрытия модального окна
+  pristine.reset(); // ресет Пристин (иначе при открытии остаются висеть сообщения об ошибках с прошлого раза)
   resetEffectsParameters(); // вызываем ресет параметров для эффектов изображения
 
   document.removeEventListener('keydown', onDocumentKeyDown);
+}
+// функция закрытия алерта по эскейп
+const onAlertDocumentKeyDown = (evt) => {
+  if (isEscapeKey(evt)) {
+    const element = document.querySelector('.success') ? 'success' : 'error';
+    evt.preventDefault();
+    closeAlert(element);
+  }
+};
+
+// функция закрытия алерта по клику за краем
+const onDocumentClick = (evt) => {
+  const element = document.querySelector('.success') ? 'success' : 'error';
+  if (evt.target === document.querySelector(`.${element}`)) {
+    closeAlert(element);
+  }
+};
+
+// функция открытия алерта
+const openAlert = (result) => {
+  showUploadAlert(result);
+  document.addEventListener('click', onDocumentClick);
+  document.querySelector(`.${result}__button`).addEventListener('click', () => closeAlert(result));
+  document.addEventListener('keydown', onAlertDocumentKeyDown);
+};
+
+// функция закрытия алерта
+function closeAlert(result) { // function declaration так как нужна выше
+  hideUploadAlert(result);
+  document.removeEventListener('click', onDocumentClick);
+  document.removeEventListener('keydown', onAlertDocumentKeyDown);
 }
 
 // добавляем валидатор на длину комментария
@@ -107,10 +154,18 @@ imageUploadInput.addEventListener('change', () => {
   openUploadOverlay();
 });
 
-// не даем отправить форму если не пройдена валидация
+// добавляем событие на отправку формы
 imageUploadForm.addEventListener('submit', (evt) => {
-  if (!pristine.validate()) {
-    evt.preventDefault();
+  evt.preventDefault();
+
+  const isValid = pristine.validate();
+  if (isValid) {
+    blockUploadButton(); // блокируем кнопку
+    sendData(new FormData(evt.target)) // пробуем отправить
+      .then(closeUploadOverlay) // успех - закрываем оверлей
+      .then(() => openAlert('success')) // успех - показываем алерт об успехе
+      .catch(() => openAlert('error')) // ошибка - показываем алерт об ошибке
+      .finally(unblockUploadButton); // в любом случае - разблокируем кнопку
   }
 });
 
