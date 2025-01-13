@@ -1,3 +1,6 @@
+// Импорт модуля с фильтрами
+import './fiters.js';
+
 // Импорт функции отрисовки миниатюр
 import { getMiniatures } from './miniatures.js';
 
