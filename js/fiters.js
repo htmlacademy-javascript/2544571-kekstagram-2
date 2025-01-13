@@ -9,6 +9,21 @@ const discussedButton = filterBlock.querySelector('#filter-discussed');
 
 const RANDOM_AMOUNT = 10;
 
+// Функция, подсвечивающая вкладку с активным фильтром
+const onClickToogleActive = (evt) => {
+  if (evt.target.matches('.img-filters__button')) {
+    const previous = filterBlock.querySelector('.img-filters__button--active');
+    previous.classList.remove('img-filters__button--active');
+    evt.target.classList.add('img-filters__button--active');
+  }
+};
+
+// Функция, отрисовывающая фотографии c фильтром по умолчанию
+const setDefaultFilter = (array, miniaturesFunction, fullscaleFuncion) => {
+  miniaturesFunction(array);
+  fullscaleFuncion(array);
+};
+
 // Функция для получения массива с необходимым количеством случайных фотографий
 const getRandomArray = (array) => {
   const resultArray = array.slice();
@@ -16,15 +31,7 @@ const getRandomArray = (array) => {
   return resultArray.slice(0, RANDOM_AMOUNT);
 };
 
-// Функция, отрисовывающая фотографии c фильтром по умолчанию
-
-const setDefaultFilter = (array, miniaturesFunction, fullscaleFuncion) => {
-  miniaturesFunction(array);
-  fullscaleFuncion(array);
-};
-
 // Функция, отрисовывающая фотографии с рандомным фильтром
-
 const setRandomFilter = (array, miniaturesFunction, fullscaleFuncion) => {
   const randomArray = getRandomArray(array);
   miniaturesFunction(randomArray);
@@ -47,6 +54,9 @@ const setFilters = (array, miniaturesFunction, fullscaleFuncion) => {
   randomButton.addEventListener('click', () => setRandomFilter(array, miniaturesFunction, fullscaleFuncion));
 
 };
+
+// Добавляем подсвечивание активной вкладки с фильтром по клику
+filterBlock.addEventListener('click', onClickToogleActive);
 
 export { setDefaultFilter, setFilters };
 
