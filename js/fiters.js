@@ -9,13 +9,36 @@ const discussedButton = filterBlock.querySelector('#filter-discussed');
 
 const RANDOM_AMOUNT = 10;
 
-filterBlock.classList.remove('img-filters--inactive');
-
+// Функция для получения массива с необходимым количеством случайных фотографий
 const getRandomArray = (array) => {
   const resultArray = array.slice();
   shuffleArray(resultArray);
   return resultArray.slice(0, RANDOM_AMOUNT);
 };
 
-export { getRandomArray };
+// Функция, отрисовывающая фотографии c фильтром по умолчанию
+
+const setDefaultFilter = (array, miniaturesFunction, fullscaleFuncion) => {
+  miniaturesFunction(array);
+  fullscaleFuncion(array);
+};
+
+// Функция, отрисовывающая фотографии с рандомным фильтром
+
+const setRandomFilter = (array, miniaturesFunction, fullscaleFuncion) => {
+  const randomArray = getRandomArray(array);
+  miniaturesFunction(randomArray);
+  fullscaleFuncion(randomArray);
+};
+
+// Функция, устанавливающая фильтры
+const setFilters = (array, miniaturesFunction, fullscaleFuncion) => {
+  filterBlock.classList.remove('img-filters--inactive');
+
+  defaultButton.addEventListener('click', () => setDefaultFilter(array, miniaturesFunction, fullscaleFuncion));
+  randomButton.addEventListener('click', () => setRandomFilter(array, miniaturesFunction, fullscaleFuncion));
+
+};
+
+export { setDefaultFilter, setFilters };
 
