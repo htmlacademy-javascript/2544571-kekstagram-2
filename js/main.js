@@ -19,8 +19,9 @@ import { showDataError } from './utils.js';
 // загружаем данные, отрисовываем миниатюры, создаем модальное окно
 getData()
   .then((array) => {
-    // setDefaultFilter(array, getMiniatures, setFullscale);
-    getMiniatures(array);
-    setFullscale(array);
+    setDefaultFilter(array, getMiniatures, setFullscale);
+    setFilters(array, getMiniatures, setFullscale);
+    // getMiniatures(array);
+    // setFullscale(array);
   })
   .catch(showDataError);

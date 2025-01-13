@@ -31,6 +31,14 @@ const setRandomFilter = (array, miniaturesFunction, fullscaleFuncion) => {
   fullscaleFuncion(randomArray);
 };
 
+// Функция, отрисовывающая фотографии в зависимости от количества комментариев
+
+const setDiscussedFilter = (array, miniaturesFunction, fullscaleFuncion) => {
+  const sortedArray = sortArrayByComments(array);
+  miniaturesFunction(sortedArray);
+  fullscaleFuncion(sortedArray);
+};
+
 // Функция, устанавливающая фильтры
 const setFilters = (array, miniaturesFunction, fullscaleFuncion) => {
   filterBlock.classList.remove('img-filters--inactive');

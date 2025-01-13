@@ -4,6 +4,10 @@ const genPictureTemplate = document.querySelector('#picture').content;
 const genPicturesFragment = document.createDocumentFragment();
 
 const getMiniatures = (array) => {
+  const previousPictures = document.querySelectorAll('.picture'); // чистим контейнер от предыдущего рендеринга
+  if (previousPictures.length > 0) {
+    previousPictures.forEach((elem) => elem.remove());
+  }
   // Используем forEach для переноса данных из массива в подготовленный фрагмент
   array.forEach(({ id, url, description, likes, comments }) => {
     const pictureElement = genPictureTemplate.cloneNode(true);
