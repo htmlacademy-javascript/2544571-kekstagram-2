@@ -1,5 +1,5 @@
 // Импорт функции которая перемешивает массив
-import { shuffleArray } from './utils.js';
+import { shuffleArray, debounce } from './utils.js';
 
 // Находим элементы, задаем константы
 const filterBlock = document.querySelector('.img-filters');
@@ -8,6 +8,7 @@ const randomButton = filterBlock.querySelector('#filter-random');
 const discussedButton = filterBlock.querySelector('#filter-discussed');
 
 const RANDOM_AMOUNT = 10;
+const RERENDER_DELAY = 500;
 
 // Функция, подсвечивающая вкладку с активным фильтром
 const onClickToogleActive = (evt) => {
@@ -62,9 +63,12 @@ const setFilters = (array, miniaturesFunction, fullscaleFuncion) => {
   setDefaultFilter(array, miniaturesFunction, fullscaleFuncion);
   filterBlock.classList.remove('img-filters--inactive');
 
-  defaultButton.addEventListener('click', () => setDefaultFilter(array, miniaturesFunction, fullscaleFuncion));
-  randomButton.addEventListener('click', () => setRandomFilter(array, miniaturesFunction, fullscaleFuncion));
-  discussedButton.addEventListener('click', () => setDiscussedFilter(array, miniaturesFunction, fullscaleFuncion));
+  defaultButton.addEventListener('click', debounce(
+    () => setDefaultFilter(array, miniaturesFunction, fullscaleFuncion),RERENDER_DELAY));
+  randomButton.addEventListener('click', debounce(
+    () => setRandomFilter(array, miniaturesFunction, fullscaleFuncion),RERENDER_DELAY));
+  discussedButton.addEventListener('click', debounce(
+    () => setDiscussedFilter(array, miniaturesFunction, fullscaleFuncion),RERENDER_DELAY));
 
 };
 

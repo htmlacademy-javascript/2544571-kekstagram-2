@@ -34,6 +34,15 @@ const shuffleArray = (array) => {
   }
 };
 
+//Функция для устранения дребезга
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
+
 //Экспорт функций
-export { isEscapeKey, showDataError, showUploadAlert, hideUploadAlert, shuffleArray };
+export { isEscapeKey, showDataError, showUploadAlert, hideUploadAlert, shuffleArray, debounce };
 
