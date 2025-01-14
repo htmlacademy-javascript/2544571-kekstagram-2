@@ -1,3 +1,6 @@
+// Импорт модуля с фильтрами
+import {setFilters} from './fiters.js';
+
 // Импорт функции отрисовки миниатюр
 import { getMiniatures } from './miniatures.js';
 
@@ -10,12 +13,14 @@ import './form.js';
 //Импорт функции для получения данных
 import { getData } from './api.js';
 
+//Импорт функции для вывода сообщения об ошибке
 import { showDataError } from './utils.js';
 
 // загружаем данные, отрисовываем миниатюры, создаем модальное окно
 getData()
   .then((array) => {
-    getMiniatures(array);
-    setFullscale(array);
+    setFilters(array, getMiniatures, setFullscale);
+    // getMiniatures(array);
+    // setFullscale(array);
   })
   .catch(showDataError);

@@ -26,6 +26,23 @@ const showDataError = () => {
 //Функция для проверки нажатия Escape в событии
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
+//Функция, перемешивающая массив (по алгоритму тасования Фишера — Йетса)
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+};
+
+//Функция для устранения дребезга
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
+
 //Экспорт функций
-export { isEscapeKey, showDataError, showUploadAlert, hideUploadAlert };
+export { isEscapeKey, showDataError, showUploadAlert, hideUploadAlert, shuffleArray, debounce };
 

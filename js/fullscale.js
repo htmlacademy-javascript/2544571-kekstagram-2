@@ -15,11 +15,13 @@ const shownCommentsCount = bigPicture.querySelector('.social__comment-shown-coun
 const bigPictureDescription = bigPicture.querySelector('.social__caption');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 
+const COMMENTS_PACE = 5; // Константа, задающая шаг - количество показываемых комментариев
+let listenerCount = 0;
+
 // создание модального окна и всей его начинки оборачиваем в функцию для экспорта
 const setFullscale = (array) => {
   let active = 0; // Счетчик активных комментариев
   let commentsArray = []; // Временный массив для порционной генерации комментариев
-  const COMMENTS_PACE = 5; // Константа, задающая шаг - количество показываемых комментариев
 
   // Убираем комментарии, поставленные в разметке по умолчанию
   commentContainer.innerHTML = '';
@@ -113,7 +115,13 @@ const setFullscale = (array) => {
   bigPictureCloseButton.addEventListener('click', closeBigPicture);
 
   // Добавляем событие на миниатюры (родительский элемент)
-  picturesContainer.addEventListener('click', onMiniatureClick);
+
+  // picturesContainer.removeEventListener('click', onMiniatureClick); - не удалял обработчик! почему?
+  // поэтому вариант с глобальной переменной listenerCount ниже
+  if (listenerCount === 0) {
+    picturesContainer.addEventListener('click', onMiniatureClick);
+    listenerCount = listenerCount + 1;
+  }
 };
 
-export {setFullscale};
+export { setFullscale };
