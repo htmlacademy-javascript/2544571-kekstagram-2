@@ -1,3 +1,6 @@
+// Импорт модуля с загрузкой изображения
+import './image-load.js';
+
 // Импорт модуля с фильтрами
 import {setFilters} from './fiters.js';
 
