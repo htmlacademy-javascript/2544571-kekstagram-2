@@ -38,6 +38,17 @@ const setRandomFilter = (array, miniaturesFunction, fullscaleFuncion) => {
   fullscaleFuncion(randomArray);
 };
 
+// Функция для сравнения фото по количеству комментариев
+
+const comparePhoto = (photoA, photoB) => photoB.comments.length - photoA.comments.length;
+
+// Функция для получения массива фото, остортированного по количеству комментариев
+
+const sortArrayByComments = (array) => {
+  const sortedArray = array.slice();
+  return sortedArray.sort(comparePhoto);
+};
+
 // Функция, отрисовывающая фотографии в зависимости от количества комментариев
 
 const setDiscussedFilter = (array, miniaturesFunction, fullscaleFuncion) => {
@@ -48,15 +59,17 @@ const setDiscussedFilter = (array, miniaturesFunction, fullscaleFuncion) => {
 
 // Функция, устанавливающая фильтры
 const setFilters = (array, miniaturesFunction, fullscaleFuncion) => {
+  setDefaultFilter(array, miniaturesFunction, fullscaleFuncion);
   filterBlock.classList.remove('img-filters--inactive');
 
   defaultButton.addEventListener('click', () => setDefaultFilter(array, miniaturesFunction, fullscaleFuncion));
   randomButton.addEventListener('click', () => setRandomFilter(array, miniaturesFunction, fullscaleFuncion));
+  discussedButton.addEventListener('click', () => setDiscussedFilter(array, miniaturesFunction, fullscaleFuncion));
 
 };
 
 // Добавляем подсвечивание активной вкладки с фильтром по клику
 filterBlock.addEventListener('click', onClickToogleActive);
 
-export { setDefaultFilter, setFilters };
+export { setFilters };
 
