@@ -1,5 +1,5 @@
 // типы файлов для проверки
-const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const FILE_TYPES = ['.jpg', '.jpeg', '.png'];
 
 const fileChooser = document.querySelector('#upload-file');
 const preview = document.querySelector('.img-upload__preview img');
